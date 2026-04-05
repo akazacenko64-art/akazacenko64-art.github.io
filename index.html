@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARG: Доступ запрещен</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            font-family: 'Courier New', 'Monaco', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Эффект "шума" как на старых мониторах */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-radial-gradient(circle at 20% 30%, rgba(0,255,0,0.03), rgba(0,255,0,0.03) 2px, transparent 2px, transparent 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(3px);
+            border: 2px solid #0f0;
+            border-radius: 12px;
+            padding: 40px 35px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2), inset 0 0 10px rgba(0, 255, 0, 0.05);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Мигающий курсор в заголовке */
+        .title {
+            text-align: center;
+            color: #0f0;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #0f0;
+            display: inline-block;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+
+        .title::after {
+            content: "_";
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #0f0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: #0a0f0a;
+            border: 1px solid #0f0;
+            padding: 12px 15px;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #0f0;
+            background: #0f1a0f;
+        }
+
+        /* Скрываем стандартные иконки в поле пароля */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            margin-top: 15px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 15px #0f0;
+            text-shadow: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ff4444;
+            min-height: 40px;
+            font-family: monospace;
+            border-left: 3px solid #ff4444;
+            padding-left: 10px;
+            background: rgba(255,68,68,0.05);
+        }
+
+        .message.success {
+            color: #0f0;
+            border-left-color: #0f0;
+        }
+
+        /* Эффект печатной машинки для сообщений */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #0f0;
+            white-space: nowrap;
+            animation: blink-cursor 0.75s step-end infinite;
+        }
+
+        @keyframes blink-cursor {
+            from, to { border-color: transparent; }
+            50% { border-color: #0f0; }
+        }
+
+        /* Ссылка-подсказка в стиле ARG */
+        .hint {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #0f0;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .hint:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.6rem;
+            color: #0f0;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="title">AUTHENTICATION REQUIRED</div>
+        
+        <div class="input-group">
+            <label>> LOGIN:</label>
+            <input type="text" id="loginInput" placeholder="Введите логин" autocomplete="off">
+        </div>
+
+        <div class="input-group">
+            <label>> PASSWORD:</label>
+            <input type="password" id="passwordInput" placeholder="Введите пароль">
+        </div>
+
+        <button id="submitBtn">ACCESS →</button>
+
+        <div id="messageBox" class="message"></div>
+        
+        <div class="hint" id="hintBtn">[ показать подсказку ]</div>
+        <footer>ARG v1.0 // терминал защищен</footer>
+    </div>
+
+    <script>
+        // ⚙️ ЗДЕСЬ ТЫ УСТАНАВЛИВАЕШЬ ЛОГИН И ПАРОЛЬ
+        // -------------------------------------------------
+        const VALID_LOGIN = "admin";      // ← замени на нужный логин
+        const VALID_PASSWORD = "12345";   // ← замени на нужный пароль
+        // -------------------------------------------------
+
+        // URL для перенаправления ПОСЛЕ успешного входа
+        const REDIRECT_URL = "https://example.com";  // ← потом поменяешь на свою страницу
+
+        let attempts = 0;
+        const maxAttempts = 5;
+
+        const loginInput = document.getElementById('loginInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageBox = document.getElementById('messageBox');
+        const hintBtn = document.getElementById('hintBtn');
+
+        function showMessage(text, isSuccess = false) {
+            messageBox.innerHTML = text;
+            messageBox.className = 'message';
+            if (isSuccess) {
+                messageBox.classList.add('success');
+            }
+            // Эффект печати (только для текста, не для ошибок)
+            if (!isSuccess && text.length < 60) {
+                // небольшой "мигающий" эффект как в терминале
+            }
+        }
+
+        function clearInputs() {
+            // не очищаем полностью, просто снимаем выделение
+            loginInput.style.borderColor = '';
+            passwordInput.style.borderColor = '';
+        }
+
+        function handleAccess() {
+            const login = loginInput.value.trim();
+            const password = passwordInput.value;
+
+            // Простейшая защита от пустых полей
+            if (login === "" || password === "") {
+                showMessage("[ОШИБКА] Заполните оба поля.");
+                return;
+            }
+
+            // Проверка логина и пароля
+            if (login === VALID_LOGIN && password === VALID_PASSWORD) {
+                showMessage("✓ ДОСТУП РАЗРЕШЕН. Перенаправление...", true);
+                
+                // Делаем кнопку неактивной на секунду
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.6";
+                
+                // Эффект мигания экрана при успешном входе
+                document.body.style.transition = "background 0.2s";
+                document.body.style.background = "#0f0";
+                setTimeout(() => {
+                    document.body.style.background = "";
+                }, 200);
+                
+                // Перенаправление через 1.5 секунды
+                setTimeout(() => {
+                    window.location.href = REDIRECT_URL;
+                }, 1500);
+            } else {
+                attempts++;
+                const remaining = maxAttempts - attempts;
+                
+                if (attempts >= maxAttempts) {
+                    showMessage(`⚠️ ДОСТУП БЛОКИРОВАН. Слишком много попыток (${maxAttempts}). Перезагрузите страницу.`);
+                    submitBtn.disabled = true;
+                    loginInput.disabled = true;
+                    passwordInput.disabled = true;
+                    submitBtn.style.opacity = "0.4";
+                    
+                    // Эффект "взлома"
+                    document.body.style.animation = "shake 0.3s ease-in-out 0s 2";
+                    const style = document.createElement('style');
+                    style.innerHTML = `@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }`;
+                    document.head.appendChild(style);
+                } else {
+                    showMessage(`✗ НЕВЕРНЫЙ ЛОГИН ИЛИ ПАРОЛЬ. Осталось попыток: ${remaining}`);
+                    // Эффект "дрожания" поля ввода
+                    passwordInput.style.borderColor = "#ff4444";
+                    passwordInput.style.boxShadow = "0 0 8px #ff4444";
+                    setTimeout(() => {
+                        passwordInput.style.borderColor = "#0f0";
+                        passwordInput.style.boxShadow = "";
+                    }, 500);
+                }
+                passwordInput.value = ""; // очищаем только пароль для безопасности
+                passwordInput.focus();
+            }
+        }
+
+        // Обработка по кнопке
+        submitBtn.addEventListener('click', handleAccess);
+
+        // Обработка нажатия Enter в любом поле
+        loginInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleAccess();
+        });
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleAccess();
+        });
+
+        // Подсказка (ARG-стиль)
+        hintBtn.addEventListener('click', function() {
+            showMessage(`[СИСТЕМНАЯ ПОДСКАЗКА] Логин: ${VALID_LOGIN} | Пароль: ${'*'.repeat(VALID_PASSWORD.length)}`);
+            // Небольшая анимация подсказки
+            hintBtn.style.opacity = "1";
+            setTimeout(() => {
+                if (!messageBox.classList.contains('success')) {
+                    setTimeout(() => {
+                        if (messageBox.innerHTML.includes("СИСТЕМНАЯ ПОДСКАЗКА")) {
+                            messageBox.innerHTML = "";
+                        }
+                    }, 4000);
+                }
+            }, 100);
+        });
+
+        // Скрываем подсказку при клике в поля
+        loginInput.addEventListener('focus', () => {
+            if (messageBox.innerHTML.includes("СИСТЕМНАЯ ПОДСКАЗКА")) {
+                messageBox.innerHTML = "";
+            }
+        });
+        passwordInput.addEventListener('focus', () => {
+            if (messageBox.innerHTML.includes("СИСТЕМНАЯ ПОДСКАЗКА")) {
+                messageBox.innerHTML = "";
+            }
+        });
+
+        // Эффект при загрузке
+        window.addEventListener('load', () => {
+            showMessage("Введите учетные данные для доступа к терминалу.");
+            loginInput.focus();
+        });
+    </script>
+</body>
+</html>
